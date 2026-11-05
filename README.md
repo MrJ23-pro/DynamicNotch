@@ -2,7 +2,13 @@
 
 Le Dynamic Island de l'iPhone, mais sur l'encoche du MacBook, pour Spotify.
 
-Quand un son passe, l'encoche s'élargit un peu : la pochette à gauche de la caméra, un petit égaliseur à droite. Tu passes la souris dessus et ça s'ouvre avec le titre, l'artiste, la barre de progression et les boutons lecture / pause / suivant / précédent. Quand rien ne joue, ça disparaît dans l'encoche.
+![DynamicNotch ouvert](docs/preview.png)
+
+Quand un son passe, l'encoche s'élargit un peu : la pochette à gauche de la caméra, un petit égaliseur à droite.
+
+![DynamicNotch fermé](docs/compact.png)
+
+Tu passes la souris dessus et ça s'ouvre avec le titre, l'artiste, la barre de progression et les boutons lecture / pause / suivant / précédent. Quand rien ne joue, ça disparaît dans l'encoche.
 
 ## Prérequis
 
@@ -33,6 +39,8 @@ Pour qu'il se lance au démarrage, glisse `DynamicNotch.app` dans Applications p
 
 Thèmes dispo : Classique, Pochette, Spotify, Néon, Mono. Le choix est gardé entre deux lancements.
 
+![Les thèmes](docs/themes.png)
+
 ## Comment ça marche
 
 Spotify envoie une notification système à chaque changement de son ou de lecture, l'app écoute ça au lieu d'interroger Spotify en boucle. AppleScript sert seulement pour la pochette et les boutons, et tourne hors du thread principal. Du coup l'app est à 0 % de CPU quand on ne la touche pas.
@@ -44,4 +52,3 @@ La fenêtre est un `NSPanel` transparent posé au dessus de la barre des menus, 
 - Spotify uniquement pour l'instant (pas Apple Music)
 - Sur plusieurs écrans, l'île reste sur l'écran qui a l'encoche
 - Pas signé avec un compte développeur Apple, donc si tu télécharges un build déjà compilé macOS va râler. Le plus simple est de compiler soi-même avec `build.sh`.
-# DynamicNotch
