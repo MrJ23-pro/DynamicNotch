@@ -1,23 +1,37 @@
 # DynamicNotch
 
-Le Dynamic Island de l'iPhone, mais sur l'encoche du MacBook, pour Spotify.
+English | [Français](README.fr.md)
 
-![DynamicNotch ouvert](docs/preview.png)
+A Dynamic Island for the MacBook notch. Shows what's playing on Spotify right around the camera, with playback controls when you hover it.
 
-Quand un son passe, l'encoche s'élargit un peu : la pochette à gauche de la caméra, un petit égaliseur à droite.
+![DynamicNotch expanded](docs/preview.png)
 
-![DynamicNotch fermé](docs/compact.png)
+When a song is playing, the notch gets a bit wider: album art on the left of the camera, a small equalizer on the right.
 
-Tu passes la souris dessus et ça s'ouvre avec le titre, l'artiste, la barre de progression et les boutons lecture / pause / suivant / précédent. Quand rien ne joue, ça disparaît dans l'encoche.
+![DynamicNotch compact](docs/compact.png)
 
-## Prérequis
+Hover it and it expands with the title, artist, a progress bar and previous / play-pause / next buttons. When nothing is playing it hides back into the notch.
 
-- macOS 14 ou plus récent
-- Un Mac avec encoche (sur les autres, ça fait une petite pilule dans la barre des menus)
-- Spotify (l'app desktop)
-- Les outils de ligne de commande Xcode : `xcode-select --install`
+It's a free, open source take on what apps like NotchNook or Alcove do, focused on Spotify and kept as light as possible.
 
-## Compiler et lancer
+## Requirements
+
+- macOS 14 or later
+- A Mac with a notch (on other Macs it shows as a small pill in the menu bar)
+- The Spotify desktop app
+- Xcode command line tools: `xcode-select --install`
+
+## Download
+
+Grab `DynamicNotch.zip` from the [latest release](https://github.com/MrJ23-pro/DynamicNotch/releases/latest), unzip it and move `DynamicNotch.app` to Applications. Apple Silicon only.
+
+The app isn't notarized, so macOS will block it the first time. Either go to System Settings > Privacy & Security and click "Open Anyway", or run:
+
+```bash
+xattr -dr com.apple.quarantine /Applications/DynamicNotch.app
+```
+
+## Build from source
 
 ```bash
 git clone https://github.com/MrJ23-pro/DynamicNotch.git
@@ -26,29 +40,33 @@ cd DynamicNotch
 open DynamicNotch.app
 ```
 
-Au premier lancement macOS demande si DynamicNotch peut contrôler Spotify, il faut accepter sinon rien ne s'affiche. Si tu as refusé par erreur : Réglages Système > Confidentialité et sécurité > Automatisation.
+On first launch macOS asks whether DynamicNotch can control Spotify. Click OK, otherwise nothing shows up. If you denied it by mistake: System Settings > Privacy & Security > Automation.
 
-Pour qu'il se lance au démarrage, glisse `DynamicNotch.app` dans Applications puis ajoute-le dans Réglages Système > Général > Ouverture.
+To start it at login, move `DynamicNotch.app` to Applications and add it in System Settings > General > Login Items.
 
-## Utilisation
+## Usage
 
-- Survoler l'encoche pour l'ouvrir
-- Cliquer sur la barre de progression pour avancer dans le son
-- Le bouton palette change de thème
-- Clic droit sur l'île pour choisir un thème ou quitter
+- Hover the notch to expand it
+- Click the progress bar to seek
+- The palette button switches theme
+- Right click the island to pick a theme or quit
 
-Thèmes dispo : Classique, Pochette, Spotify, Néon, Mono. Le choix est gardé entre deux lancements.
+Themes: Classique, Pochette (gradient from the album art color), Spotify, Néon, Mono. Your choice is remembered.
 
-![Les thèmes](docs/themes.png)
+![Themes](docs/themes.png)
 
-## Comment ça marche
+## How it works
 
-Spotify envoie une notification système à chaque changement de son ou de lecture, l'app écoute ça au lieu d'interroger Spotify en boucle. AppleScript sert seulement pour la pochette et les boutons, et tourne hors du thread principal. Du coup l'app est à 0 % de CPU quand on ne la touche pas.
+Spotify posts a system notification every time the track or playback state changes, so the app just listens to that instead of polling. AppleScript is only used for the album art and the buttons, and it runs off the main thread. Result: 0% CPU when you're not touching it, around 25 MB of memory.
 
-La fenêtre est un `NSPanel` transparent posé au dessus de la barre des menus, qui ne prend les clics que quand la souris est sur l'île.
+The window is a transparent `NSPanel` sitting above the menu bar. It only catches clicks while the mouse is over the island, so the menu bar keeps working. The equalizer is animated with plain Core Animation layers.
 
-## Limites
+## Limitations
 
-- Spotify uniquement pour l'instant (pas Apple Music)
-- Sur plusieurs écrans, l'île reste sur l'écran qui a l'encoche
-- Pas signé avec un compte développeur Apple, donc si tu télécharges un build déjà compilé macOS va râler. Le plus simple est de compiler soi-même avec `build.sh`.
+- Spotify only for now (no Apple Music)
+- With several displays, the island stays on the one with the notch
+- Not notarized, see [Download](#download) to get past Gatekeeper
+
+## License
+
+MIT, see [LICENSE](LICENSE).
