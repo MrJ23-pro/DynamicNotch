@@ -57,6 +57,7 @@ On first launch macOS asks for a few permissions:
 - **Spotify (Automation)**: to read the current track and use the buttons
 - **Bluetooth**: to notice devices connecting
 - **Downloads folder**: to follow downloads in progress
+- **Accessibility**: to see where the active app's menus end. When they run up to the notch (Brave, Xcode...), the island moves to the right of the notch instead of covering them
 
 Each one only turns off its own feature if you say no. You can change them later in System Settings > Privacy & Security.
 
@@ -82,6 +83,7 @@ Everything is event driven, nothing polls while idle:
 - Volume and mic use Core Audio property listeners, the camera uses Core Media IO
 - Downloads watch the folder for `.crdownload`, `.download` and `.part` files and read the progress browsers write in the `com.apple.progress.fractionCompleted` attribute. A 1 s refresh only runs while something is downloading
 - Bluetooth uses IOBluetooth connect notifications
+- When you switch apps, the Accessibility API gives the position of its menus, read once per switch
 
 When there's nothing to show the window is taken off screen. Result: 0% CPU when idle, around 20 to 25 MB of memory.
 

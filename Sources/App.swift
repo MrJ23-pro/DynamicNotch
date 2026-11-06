@@ -40,6 +40,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         panel.contentView = host
 
         place()
+        MenuWatch.askOnce()
 
         NotificationCenter.default.addObserver(forName: NSApplication.didChangeScreenParametersNotification,
                                                object: nil, queue: .main) { [weak self] _ in self?.place() }
@@ -87,11 +88,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if s.safeAreaInsets.top > 0, let l = s.auxiliaryTopLeftArea, let r = s.auxiliaryTopRightArea {
             hub.notch = CGSize(width: s.frame.width - l.width - r.width, height: s.safeAreaInsets.top)
             hub.hasNotch = true
+            hub.notchMinX = s.frame.minX + l.width
         } else {
             let menuBar = s.frame.maxY - s.visibleFrame.maxY
             hub.notch = CGSize(width: 160, height: menuBar > 0 ? menuBar : 24)
             hub.hasNotch = false
         }
+        hub.menus.limit = s.frame.midX
+        hub.menus.refresh()
         panel.setFrame(NSRect(x: s.frame.midX - windowSize.width / 2, y: s.frame.maxY - windowSize.height,
                               width: windowSize.width, height: windowSize.height), display: true)
     }
@@ -108,7 +112,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         let size = hub.size
         let margin: CGFloat = hub.expanded ? 12 : 4
-        let rect = NSRect(x: s.frame.midX - size.width / 2 - margin, y: s.frame.maxY - size.height - margin,
+        let rect = NSRect(x: s.frame.midX + hub.shift - size.width / 2 - margin, y: s.frame.maxY - size.height - margin,
                           width: size.width + 2 * margin, height: size.height + margin + 1)
         let inside = rect.contains(m)
 

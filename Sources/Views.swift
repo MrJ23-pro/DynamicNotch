@@ -31,8 +31,10 @@ struct IslandView: View {
                 .clipped()
         }
         .modifier(Shake(amount: hub.shake))
+        .offset(x: hub.shift)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .animation(.spring(response: 0.36, dampingFraction: 0.8), value: size)
+        .animation(.spring(response: 0.36, dampingFraction: 0.8), value: hub.shift)
     }
 
     @ViewBuilder
@@ -85,35 +87,66 @@ struct CompactView: View {
 
     var body: some View {
         let h = hub.notch.height
-        HStack(spacing: 6) {
-            switch hub.compact {
-            case .music?:
-                Artwork(image: hub.spotify.artwork, size: h - 10, radius: 5)
-                Spacer(minLength: 0)
-                Equalizer(playing: hub.spotify.playing, color: accent, height: h * 0.42)
-            case .timer?:
-                Image(systemName: "timer").foregroundStyle(.orange)
-                Spacer(minLength: 0)
-                TimelineView(.periodic(from: .now, by: 1)) { ctx in
-                    Text(clock(hub.countdown.remaining(at: ctx.date), roundUp: true))
-                        .monospacedDigit()
-                        .foregroundStyle(.orange)
+        Group {
+            if hub.rightOnly {
+                HStack(spacing: 0) {
+                    Color.clear.frame(width: hub.notch.width)
+                    HStack(spacing: 6) {
+                        leading
+                        trailing
+                        dots
+                    }
+                    .padding(.leading, 10)
+                    .padding(.trailing, 12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
-            case .download?:
-                Image(systemName: "arrow.down.circle.fill").foregroundStyle(.blue)
-                Spacer(minLength: 0)
-                Ring(fraction: hub.downloads.active.first?.fraction, color: .blue)
-                    .frame(width: 15, height: 15)
-            case nil:
-                Spacer(minLength: 0)
-            }
-            ForEach(Array(hub.dots.enumerated()), id: \.offset) { _, color in
-                Circle().fill(color).frame(width: 6, height: 6)
+            } else {
+                HStack(spacing: 6) {
+                    leading
+                    Spacer(minLength: 0)
+                    trailing
+                    dots
+                }
+                .padding(.horizontal, 12)
             }
         }
         .font(.system(size: 13, weight: .semibold))
-        .padding(.horizontal, 12)
         .frame(height: h)
+    }
+
+    @ViewBuilder
+    private var leading: some View {
+        switch hub.compact {
+        case .music?: Artwork(image: hub.spotify.artwork, size: hub.notch.height - 10, radius: 5)
+        case .timer?: Image(systemName: "timer").foregroundStyle(.orange)
+        case .download?: Image(systemName: "arrow.down.circle.fill").foregroundStyle(.blue)
+        case nil: EmptyView()
+        }
+    }
+
+    @ViewBuilder
+    private var trailing: some View {
+        switch hub.compact {
+        case .music?:
+            Equalizer(playing: hub.spotify.playing, color: accent, height: hub.notch.height * 0.42)
+        case .timer?:
+            TimelineView(.periodic(from: .now, by: 1)) { ctx in
+                Text(clock(hub.countdown.remaining(at: ctx.date), roundUp: true))
+                    .monospacedDigit()
+                    .foregroundStyle(.orange)
+            }
+        case .download?:
+            Ring(fraction: hub.downloads.active.first?.fraction, color: .blue)
+                .frame(width: 15, height: 15)
+        case nil:
+            EmptyView()
+        }
+    }
+
+    private var dots: some View {
+        ForEach(Array(hub.dots.enumerated()), id: \.offset) { _, color in
+            Circle().fill(color).frame(width: 6, height: 6)
+        }
     }
 }
 

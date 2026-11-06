@@ -55,6 +55,7 @@ Au premier lancement macOS demande quelques autorisations :
 - **Spotify (Automatisation)** : pour lire le son en cours et utiliser les boutons
 - **Bluetooth** : pour voir les appareils qui se connectent
 - **Dossier Téléchargements** : pour suivre les téléchargements en cours
+- **Accessibilité** : pour savoir où s'arrêtent les menus de l'app active. Quand ils vont jusqu'à l'encoche (Brave, Xcode...), l'île passe à droite de l'encoche au lieu de les cacher
 
 Si tu en refuses une, seule la fonction concernée est désactivée. Tu peux changer ça plus tard dans Réglages Système > Confidentialité et sécurité.
 
@@ -80,6 +81,7 @@ Tout fonctionne par événements, rien ne tourne en boucle quand il ne se passe 
 - Le volume et le micro passent par des écouteurs Core Audio, la caméra par Core Media IO
 - Les téléchargements : l'app surveille le dossier pour les fichiers `.crdownload`, `.download` et `.part`, et lit la progression que les navigateurs écrivent dans l'attribut `com.apple.progress.fractionCompleted`. Un rafraîchissement toutes les secondes tourne seulement pendant un téléchargement
 - Le Bluetooth passe par les notifications de connexion d'IOBluetooth
+- Quand tu changes d'app, l'API d'accessibilité donne la position de ses menus, lue une fois par changement
 
 Quand il n'y a rien à afficher, la fenêtre est retirée de l'écran. Du coup l'app est à 0 % de CPU au repos, pour 20 à 25 Mo de mémoire.
 

@@ -36,6 +36,7 @@ final class Hub: ObservableObject {
     let privacy = PrivacyWatch()
     let volume = VolumeWatch()
     let bluetooth = BluetoothWatch()
+    let menus = MenuWatch()
     let prefs = Prefs()
 
     @Published var expanded = false
@@ -44,6 +45,7 @@ final class Hub: ObservableObject {
 
     var notch = CGSize(width: 185, height: 32)
     var hasNotch = true
+    var notchMinX: CGFloat = 0
     let ear: CGFloat = 8
 
     static let musicHeight: CGFloat = 128
@@ -56,7 +58,8 @@ final class Hub: ObservableObject {
 
     init() {
         Publishers.MergeMany(spotify.objectWillChange, battery.objectWillChange, countdown.objectWillChange,
-                             downloads.objectWillChange, privacy.objectWillChange, prefs.objectWillChange)
+                             downloads.objectWillChange, privacy.objectWillChange, menus.objectWillChange,
+                             prefs.objectWillChange)
             .sink { [weak self] in self?.objectWillChange.send() }
             .store(in: &bag)
 
@@ -87,10 +90,7 @@ final class Hub: ObservableObject {
 
     var visibleDownloads: [Downloads.Item] { Array(downloads.active.prefix(3)) }
 
-    var size: CGSize {
-        if expanded { return expandedSize }
-        if let b = banner { return CGSize(width: notch.width + 2 * b.side, height: notch.height) }
-
+    private var side: CGFloat {
         var side: CGFloat
         switch compact {
         case .music?, .download?: side = notch.height + 8
@@ -98,7 +98,35 @@ final class Hub: ObservableObject {
         case nil: side = 0
         }
         if !dots.isEmpty { side += CGFloat(dots.count) * 10 + (side == 0 ? 12 : 4) }
+        return side
+    }
+
+    // the frontmost app's menus run into the left half: put everything right of the notch instead
+    var rightOnly: Bool {
+        guard hasNotch, !expanded, banner == nil, side > 0, menus.end > 0 else { return false }
+        return menus.end > notchMinX - side - ear - 4
+    }
+
+    private var rightSide: CGFloat {
+        var w: CGFloat
+        switch compact {
+        case .music?: w = 68
+        case .timer?: w = 86
+        case .download?: w = 60
+        case nil: w = 10
+        }
+        return w + CGFloat(dots.count) * 12
+    }
+
+    // horizontal offset of the island's center from the notch's center
+    var shift: CGFloat { rightOnly ? rightSide / 2 : 0 }
+
+    var size: CGSize {
+        if expanded { return expandedSize }
+        if let b = banner { return CGSize(width: notch.width + 2 * b.side, height: notch.height) }
+        let side = self.side
         if side == 0 { return hasNotch ? notch : .zero }
+        if rightOnly { return CGSize(width: notch.width + rightSide, height: notch.height) }
         return CGSize(width: notch.width + 2 * side, height: notch.height)
     }
 
