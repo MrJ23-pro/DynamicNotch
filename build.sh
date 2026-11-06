@@ -6,7 +6,7 @@ rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS"
 
 swiftc -O -wmo -swift-version 5 -parse-as-library -target "$(uname -m)-apple-macos14.0" \
-  DynamicNotch.swift -o "$APP/Contents/MacOS/DynamicNotch"
+  Sources/*.swift -o "$APP/Contents/MacOS/DynamicNotch"
 
 cat > "$APP/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
@@ -19,6 +19,8 @@ cat > "$APP/Contents/Info.plist" <<PLIST
   <key>CFBundleShortVersionString</key><string>1.0</string>
   <key>LSMinimumSystemVersion</key><string>14.0</string>
   <key>LSUIElement</key><true/>
+  <key>NSBluetoothAlwaysUsageDescription</key><string>DynamicNotch affiche une animation quand un appareil Bluetooth se connecte.</string>
+  <key>NSDownloadsFolderUsageDescription</key><string>DynamicNotch affiche la progression des téléchargements en cours.</string>
   <key>NSAppleEventsUsageDescription</key><string>DynamicNotch lit la musique en cours et contrôle la lecture dans Spotify.</string>
 </dict></plist>
 PLIST

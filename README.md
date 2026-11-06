@@ -2,24 +2,36 @@
 
 English | [Français](README.fr.md)
 
-A Dynamic Island for the MacBook notch. Shows what's playing on Spotify right around the camera, with playback controls when you hover it.
+A Dynamic Island for the MacBook notch. Spotify, charging, a timer, volume, downloads, Bluetooth and mic / camera use, right around the camera.
 
 ![DynamicNotch expanded](docs/preview.png)
 
-When a song is playing, the notch gets a bit wider: album art on the left of the camera, a small equalizer on the right.
+When a song is playing, the notch gets a bit wider: album art on the left of the camera, a small equalizer on the right. Hover it and it expands with the title, artist, a progress bar and the playback controls.
 
 ![DynamicNotch compact](docs/compact.png)
 
-Hover it and it expands with the title, artist, a progress bar and previous / play-pause / next buttons. When nothing is playing it hides back into the notch.
+It's a free, open source take on what apps like NotchNook or Alcove do, kept as light as possible.
 
-It's a free, open source take on what apps like NotchNook or Alcove do, focused on Spotify and kept as light as possible.
+## What it shows
+
+![Features](docs/features.png)
+
+- **Spotify**: album art and equalizer, mini player on hover
+- **Charging**: plug the charger in and the notch shows the battery level for a couple of seconds, like on the iPhone
+- **Timer**: hover the notch and pick 5, 25 or 50 min. The time left stays next to the camera and the island shakes when it's done
+- **Mic and camera**: an orange (mic) or green (camera) dot while something records, and the name of the app using the mic
+- **Volume**: a small bar when you change the volume
+- **Downloads**: progress of what's downloading in Chrome, Brave, Edge, Safari or Firefox, and a note when it's done
+- **Bluetooth**: AirPods, headphones, keyboards and mice when they connect
+
+![Expanded](docs/expanded.png)
 
 ## Requirements
 
-- macOS 14 or later
+- macOS 14 or later (14.2 to see which app uses the mic)
 - A Mac with a notch (on other Macs it shows as a small pill in the menu bar)
-- The Spotify desktop app
-- Xcode command line tools: `xcode-select --install`
+- The Spotify desktop app for the music part
+- Xcode command line tools to build it: `xcode-select --install`
 
 ## Download
 
@@ -40,13 +52,19 @@ cd DynamicNotch
 open DynamicNotch.app
 ```
 
-On first launch macOS asks whether DynamicNotch can control Spotify. Click OK, otherwise nothing shows up. If you denied it by mistake: System Settings > Privacy & Security > Automation.
+On first launch macOS asks for a few permissions:
+
+- **Spotify (Automation)**: to read the current track and use the buttons
+- **Bluetooth**: to notice devices connecting
+- **Downloads folder**: to follow downloads in progress
+
+Each one only turns off its own feature if you say no. You can change them later in System Settings > Privacy & Security.
 
 To start it at login, move `DynamicNotch.app` to Applications and add it in System Settings > General > Login Items.
 
 ## Usage
 
-- Hover the notch to expand it
+- Hover the notch to expand it, even when nothing is playing (that's where the timer is)
 - Click the progress bar to seek
 - The palette button switches theme
 - Right click the island to pick a theme or quit
@@ -57,13 +75,21 @@ Themes: Classique, Pochette (gradient from the album art color), Spotify, Néon,
 
 ## How it works
 
-Spotify posts a system notification every time the track or playback state changes, so the app just listens to that instead of polling. AppleScript is only used for the album art and the buttons, and it runs off the main thread. Result: 0% CPU when you're not touching it, around 25 MB of memory.
+Everything is event driven, nothing polls while idle:
 
-The window is a transparent `NSPanel` sitting above the menu bar. It only catches clicks while the mouse is over the island, so the menu bar keeps working. The equalizer is animated with plain Core Animation layers.
+- Spotify posts a system notification when the track or playback changes. AppleScript is only used for the album art and the buttons, off the main thread
+- Battery comes from IOKit power source notifications
+- Volume and mic use Core Audio property listeners, the camera uses Core Media IO
+- Downloads watch the folder for `.crdownload`, `.download` and `.part` files and read the progress browsers write in the `com.apple.progress.fractionCompleted` attribute. A 1 s refresh only runs while something is downloading
+- Bluetooth uses IOBluetooth connect notifications
+
+When there's nothing to show the window is taken off screen. Result: 0% CPU when idle, around 20 to 25 MB of memory.
 
 ## Limitations
 
-- Spotify only for now (no Apple Music)
+- Music is Spotify only for now (no Apple Music)
+- The macOS volume overlay still shows up next to the island
+- No public API tells which app uses the camera, so it just says "Caméra"
 - With several displays, the island stays on the one with the notch
 - Not notarized, see [Download](#download) to get past Gatekeeper
 
